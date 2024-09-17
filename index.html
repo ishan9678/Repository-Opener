@@ -1,0 +1,125 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>Repository Opener</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: "Montserrat", sans-serif;
+            padding: 20px;
+        }
+
+        h2{
+            text-align: center;
+        }
+
+        #repo-buttons, #server-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 10px;
+        }
+        button {
+            font-weight: 550;
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            background-color: wheat;
+        }
+
+        button:hover {
+            background-color: black;
+            color: white;
+        }
+        #status-area {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h2>Repository Opener</h2>
+    <div id="repo-buttons"></div>
+    <h2>Start Servers</h2>
+    <div id="server-buttons"></div>
+    <div id="status-area">
+        <h3>Server Status</h3>
+        <pre id="status-messages"></pre>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        const repos = {
+            "Ekalvia": "C:/Users/mahna/Desktop/kalvium/ekalvia",
+            "Quad Frontend": "C:/Users/mahna/Desktop/kalvium/quad-frontend",
+            "Kalvium Backend sdk": "C:/Users/mahna/Desktop/kalvium/kalvium-backend-sdk",
+            "Quad Assessment api": "C:/Users/mahna/Desktop/kalvium/quad-assessment-api",
+            "Quad Authoring api": "C:/Users/mahna/Desktop/kalvium/quad-authoring-api",
+            "Quad Job api": "C:/Users/mahna/Desktop/kalvium/quad-job-api",
+            "Quad Security api": "C:/Users/mahna/Desktop/kalvium/quad-security-api",
+            "Quad Signal api": "C:/Users/mahna/Desktop/kalvium/quad-signal-api",
+            "Quad Student api": "C:/Users/mahna/Desktop/kalvium/quad-student-api",
+            "Authoring Frontend": "C:/Users/mahna/Desktop/kalvium/authoring-frontend",
+            "Backoffice": "C:/Users/mahna/Desktop/kalvium/backoffice"
+        };
+
+        const servers = ["redis"];
+
+        const repoButtons = document.getElementById('repo-buttons');
+        const serverButtons = document.getElementById('server-buttons');
+        const statusMessages = document.getElementById('status-messages');
+
+        for (const [name, path] of Object.entries(repos)) {
+            const button = document.createElement('button');
+            button.textContent = name;
+            button.onclick = () => {
+                ipcRenderer.send('open-repo', path);
+            };
+            repoButtons.appendChild(button);
+        }
+
+        for (const server of servers) {
+            const button = document.createElement('button');
+            button.textContent = `Start ${server} server`;
+            button.onclick = () => {
+                ipcRenderer.send('start-server', server);
+                button.disabled = true;
+                button.textContent = `Starting ${server} server...`;
+                addStatusMessage(`Attempting to start ${server} server...`);
+            };
+            serverButtons.appendChild(button);
+        }
+
+        function addStatusMessage(message) {
+            statusMessages.textContent += message + '\n';
+            statusMessages.scrollTop = statusMessages.scrollHeight;
+        }
+
+        ipcRenderer.on('server-status', (event, { type, status, message }) => {
+            const button = Array.from(serverButtons.querySelectorAll('button')).find(btn => btn.textContent.includes(type));
+            if (button) {
+                if (status === 'success') {
+                    button.textContent = `${type} server running`;
+                    button.style.backgroundColor = 'green';
+                } else if (status === 'error') {
+                    button.textContent = `Failed to start ${type} server`;
+                    button.style.backgroundColor = 'red';
+                } else if (status === 'exit') {
+                    button.textContent = `${type} server stopped`;
+                    button.style.backgroundColor = '';
+                }
+                button.disabled = false;
+            }
+            addStatusMessage(`${type} server: ${status} - ${message}`);
+        });
+    </script>
+</body>
+</html>

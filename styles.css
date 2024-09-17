@@ -1,0 +1,28 @@
+body {
+    font-family: "Montserrat", sans-serif;
+    padding: 20px;
+}
+
+h2{
+    text-align: center;
+}
+
+#repo-buttons, #server-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+}
+button {
+    font-weight: 550;
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    background-color: wheat;
+}
+
+button:hover {
+    background-color: black;
+    color: white;
+}

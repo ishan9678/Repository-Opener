@@ -1,0 +1,30 @@
+{
+    "name": "repo-opener",
+    "version": "1.0.0",
+    "description": "An Electron app to open repositories",
+    "main": "main.js",
+    "author": "ishan",
+    "scripts": {
+      "start": "electron ."
+    },
+    "devDependencies": {
+      "cross-env": "^7.0.3",
+      "electron": "^13.0.0",
+      "electron-builder": "^25.0.5"
+    },
+    "build": {
+    "appId": "com.example.myapp",
+    "productName": "Repo Opener",
+    "files": [
+        "main.js",
+        "index.html",
+        "dist/**/*",
+        "node_modules/**/*"
+    ],
+    "win": {
+        "target": [
+        "nsis"
+        ]
+    }
+    }
+}
